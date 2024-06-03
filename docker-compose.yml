@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - db
+
+  db:
+    image: nouchka/sqlite3
+    volumes:
+      - sqlite-db:/data
+    environment:
+      - SQLITE_DATABASE=db.sqlite
+
+  cypress:
+    image: cypress/included:10.3.0
+    depends_on:
+      - app
+    environment:
+      - CYPRESS_baseUrl=http://app:3000
+    working_dir: /e2e
+    volumes:
+      - ./cypress:/e2e
+      - ./cypress.json:/e2e/cypress.json
+
+volumes:
+  sqlite-db:
